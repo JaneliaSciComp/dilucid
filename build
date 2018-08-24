@@ -1,0 +1,22 @@
+#! /bin/bash
+
+# Copy the official DLC code into a parallel folder
+# that we'll modify to suit
+cp -r dlc dlc-modded
+
+# Modify the parallel folder to eliminate the demo stuff, 
+# and download the pretrained models
+rm dlc-modded/videos/*
+rm dlc-modded/Generating_a_Training_Set/IsCroppingOKreachingvideo1.png
+rm dlc-modded/Generating_a_Training_Set/reachingvideo1.avi
+rm dlc-modded/Generating_a_Training_Set/*.ipynb
+rm -r dlc-modded/Generating_a_Training_Set/data-reaching
+rm -r dlc-modded/pose-tensorflow/models/reachingJan30-trainset95shuffle1
+rm -r dlc-modded/pose-tensorflow/models/UnaugmentedDataSet_reachingJan30
+pushd dlc-modded/pose-tensorflow/models/pretrained
+./download.sh
+popd
+
+# Copy Mike's July 11 model into place in the parallel folder
+cp -r licking-side2Jul11-trainset95shuffle1 dlc-modded/pose-tensorflow/models
+cp myconfig_analysis.py dlc-modded

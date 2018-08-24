@@ -26,8 +26,8 @@ y2 = 624
 # Analysis Network parameters:
 
 scorer = 'MNE'
-Task = 'licking-side'
-date = 'Jul10'
+Task = 'licking-side2'
+date = 'Jul11'
 trainingsFraction = 0.95  # Fraction of labeled images used for training
 resnet = 50
 snapshotindex = -1
@@ -36,7 +36,7 @@ shuffle = 1
 storedata_as_csv=False #if true then the time series of poses will (also) be saved as csv. 
 
 # For plotting:
-trainingsiterations = 1000000  # type the number listed in .pickle file
+trainingsiterations = 400000  # type the number listed in .pickle file
 pcutoff = 0.9  # likelihood cutoff for body part in image
 # delete individual (labeled) frames after making video?
 deleteindividualframes = False
@@ -44,3 +44,4 @@ alphavalue=.6 # "strength/transparency level of makers" in individual frames (Va
 dotsize = 7
 #colormap='' #other colorschemes: 'cool' and see https://matplotlib.org/examples/color/colormaps_reference.html
 colormap = 'Pastel1' #set color map, i.e. viridis, cool, hsv
+

@@ -62,7 +62,7 @@ def evaluate_on_one_video(source_input_file_name):
         output_file_extension = ".h5"
         source_output_file_path = os.path.join(dlc_root_path,
                                                "videos",
-                                               "the-video" + "DeepCut_resnet50_licking-sideJul10shuffle1_1000000" + output_file_extension)
+                                               "the-video" + "DeepCut_resnet50_licking-side2Jul11shuffle1_400000" + output_file_extension)
         if len(sys.argv) >= 3 :
             destination_output_file_name = sys.argv[2]
             if os.path.isabs(destination_output_file_name) :
