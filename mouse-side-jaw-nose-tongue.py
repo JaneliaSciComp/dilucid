@@ -77,10 +77,10 @@ def evaluate_on_folder(source_folder_path, n_submitted):
                 do_it = True
             do_it_for_reals = do_it and not os.path.exists(lock_file_path)
             if do_it_for_reals :
-                subprocess.call('/usr/bin/touch "%s"' % lock_file_path)
+                subprocess.call('/usr/bin/touch "%s"' % lock_file_path, shell=True)
                 stdout_file_path = replace_extension(source_file_path, '-stdout.txt')
                 stderr_file_path = replace_extension(source_file_path, '-stderr.txt')   
-                command_line = 'bsub -o "%s" -e "%s" -q gpu_any -n1 -gpu "num=1" singularity exec -B /scratch,/nrs --nv dlc.simg python3 mouse-side-jaw-nose-tongue-one.py "%s"' % (source_file_path, stdout_file_path, stderr_file_path)
+                command_line = 'bsub -o "%s" -e "%s" -q gpu_any -n1 -gpu "num=1" singularity exec -B /scratch,/nrs --nv dlc.simg python3 mouse-side-jaw-nose-tongue-one.py "%s"' % (stdout_file_path, stderr_file_path, source_file_path)
                 print('About to subprocess.call(): %s' % command_line)
                 print("PATH: %s" % os.environ['PATH'])
                 print("PWD: %s" % os.environ['PWD'])
