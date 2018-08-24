@@ -17,6 +17,7 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 echo "About to print the PATH environment variable in the njt bash shell:"
 printenv PATH
 
+umask u=rwx,g=rwx,o=  # want created files, dirs to be group-writable
 cd ${THIS_DIR}
-python3 mouse-side-jaw-nose-tongut.py /nrs/svoboda/dlc-drop-mouse-side-jaw-nose-tongue
-touch /nrs/svoboda/dlc-drop-side/done-at-modification-time-of-me.txt
+python3 mouse-side-jaw-nose-tongue.py /nrs/svoboda/dlc-drop-mouse-side-jaw-nose-tongue
+#touch /nrs/svoboda/dlc-drop-mouse-side-jaw-nose-tongue/done-at-modification-time-of-me.txt

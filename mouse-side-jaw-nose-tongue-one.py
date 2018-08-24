@@ -74,6 +74,17 @@ def evaluate_on_one_video(source_input_file_name):
             destination_output_file_path = os.path.join(source_input_file_folder_path,
                                                         input_file_stem_name + output_file_extension)
 
+        # Check the umask
+        print("umask -S:")
+        os.system("umask -S")
+        print("")
+
+        # The umask is u=rwx, g=rx, u=rx, for some reason...
+        # (The bsub?  The singularity container?)  Dunno...
+        # Anyway, we change it so that the final .h5 file is group-writable,
+        # but others have no access
+        os.umask(0o007)
+
         print("About to copy result to final location...")
         print("source_output_file_path: %s" % source_output_file_path)
         print("destination_output_file_path: %s" % destination_output_file_path)

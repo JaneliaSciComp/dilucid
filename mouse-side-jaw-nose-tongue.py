@@ -7,6 +7,7 @@ import shutil
 import runpy
 import subprocess
 import pwd
+import time
 
 def does_match_extension(file_name, target_extension) :
     # target_extension should include the dot
@@ -63,11 +64,16 @@ def evaluate_on_folder(source_folder_path, n_submitted):
                 else :
                     if os.path.isfile(target_file_path) :
                         # run the script only if the source is more recent than the target
+                        # and also if the the source has not been modified in the waiting period
+                        # This last is to prevent files that are currently being written from being analyzed.
+                        waiting_period = 300  # seconds
+                        current_time = time.time()
                         source_modification_time = os.path.getmtime(source_file_path)
                         target_modification_time = os.path.getmtime(target_file_path) 
+                        print("current time: %s" % current_time)
                         print("source mod time: %s" % source_modification_time)
-                        print("target mod time: %s" % target_modification_time)
-                        do_it = ( source_modification_time >= target_modification_time )
+                        print("target mod time: %s" % target_modification_time)                      
+                        do_it = ( source_modification_time >= target_modification_time ) and (current_time > source_modification_time + waiting_period)
                     else :
                         # The file exists, but is neither a file or a folder.  WTF?
                         print("An object exists at target location %s, but it's neigher a file nor a folder.  Not submitting a job." % target_file_path)
