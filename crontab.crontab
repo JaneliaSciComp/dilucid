@@ -1,0 +1,1 @@
+0,5,10,15,20,25,30,35,40,45,50,55 * * * *     flock --nonblock /nrs/svoboda/dlc-drop-mouse-side-jaw-nose-tongue --command /groups/svoboda/home/svobodalab/mouse-side-node-jaw-tongue/mouse-side-node-jaw-tongue

@@ -14,7 +14,7 @@ def get_username():
 def evaluate_on_one_video(source_input_file_name):
     this_script_path = os.path.realpath(__file__)
     this_script_folder_path = os.path.dirname(this_script_path)
-    source_dlc_root_path = os.path.normpath(os.path.join(this_script_folder_path, "dlc"))
+    source_dlc_root_path = os.path.normpath(os.path.join(this_script_folder_path, "dlc-modded"))
 
     initial_folder_path = os.getcwd()
     #temp_folder_path = tempfile.mkdtemp()
@@ -28,7 +28,7 @@ def evaluate_on_one_video(source_input_file_name):
         did_create_dlc_container_path = True
         print("dlc_container_path is %s" % dlc_container_path) 
 
-        dlc_root_path = os.path.join(dlc_container_path, "dlc") ;
+        dlc_root_path = os.path.join(dlc_container_path, "dlc-modded") ;
         print("dlc_root_path is %s" % dlc_root_path) 
 
         shutil.copytree(source_dlc_root_path, dlc_root_path)
@@ -84,10 +84,23 @@ def evaluate_on_one_video(source_input_file_name):
 
         # Remove the temporary folder we created
         shutil.rmtree(dlc_container_path)
+
+        # Remove the lock file
+        lock_file_path = os.path.join(source_input_file_name + ".lock")
+        if os.path.exists(lock_file_path) :
+            os.remove(lock_file_path)
+
     except Exception as e:
+        # Remove the temporary folder
         if did_create_dlc_container_path :
             shutil.rmtree(dlc_container_path)
+        # Remove the lock file
+        lock_file_path = os.path.join(source_input_file_name + ".lock")
+        if os.path.exists(lock_file_path) :
+            os.remove(lock_file_path)
+        # cd back to the initual folder
         os.chdir(initial_folder_path)
+        # Re-throw the exception
         raise e
 
 

@@ -53,11 +53,13 @@ def evaluate_on_folder(source_folder_path, n_submitted):
     for source_file_name in names_of_files_in_source_folder:
         if does_match_extension(source_file_name, ".avi") :
             source_file_path = os.path.join(source_folder_path, source_file_name)
+            lock_file_path = os.path.join(source_folder_path, source_file_name + ".lock")
             target_file_path = os.path.join(source_folder_path, replace_extension(source_file_name, ".h5"))
             if os.path.exists(target_file_path) :
                 if os.path.isdir(target_file_path) :
-                    shutil.rmtree(target_file_path)
-                    do_it = True
+                    # An object exists at the target path, but (oddly) it's a folder
+                    print("An object exists at target location %s, but it's a folder.  Not submitting a job." % target_file_path)
+                    do_it = False
                 else :
                     if os.path.isfile(target_file_path) :
                         # run the script only if the source is more recent than the target
@@ -67,16 +69,18 @@ def evaluate_on_folder(source_folder_path, n_submitted):
                         print("target mod time: %s" % target_modification_time)
                         do_it = ( source_modification_time >= target_modification_time )
                     else :
-                        # The file exists, but is neither a file for a folder.  WTF?
-                        # We'll try to proceed
-                        do_it = True                
+                        # The file exists, but is neither a file or a folder.  WTF?
+                        print("An object exists at target location %s, but it's neigher a file nor a folder.  Not submitting a job." % target_file_path)
+                        do_it = False
             else :
                 # target file does not exist
                 do_it = True
-            if do_it :
+            do_it_for_reals = do_it and not os.path.exists(lock_file_path)
+            if do_it_for_reals :
+                subprocess.call('/usr/bin/touch "%s"' % lock_file_path)
                 stdout_file_path = replace_extension(source_file_path, '-stdout.txt')
                 stderr_file_path = replace_extension(source_file_path, '-stderr.txt')   
-                command_line = 'bsub -o "%s" -e "%s" -q gpu_any -n1 -gpu "num=1" singularity exec -B /scratch,/nrs --nv dlc.simg python3 mouse-side-jaw-nose-tongue-one.py "%s"' % (stdout_file_path, stderr_file_path, source_file_path)
+                command_line = 'bsub -o "%s" -e "%s" -q gpu_any -n1 -gpu "num=1" singularity exec -B /scratch,/nrs --nv dlc.simg python3 mouse-side-jaw-nose-tongue-one.py "%s"' % (source_file_path, stdout_file_path, stderr_file_path)
                 print('About to subprocess.call(): %s' % command_line)
                 print("PATH: %s" % os.environ['PATH'])
                 print("PWD: %s" % os.environ['PWD'])
