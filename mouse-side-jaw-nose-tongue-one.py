@@ -81,8 +81,11 @@ def evaluate_on_one_video(source_input_file_name, lock_file_name, destination_ou
         print("destination_output_file_path: %s" % destination_output_file_path)
         shutil.copyfile(source_output_file_path, destination_output_file_path)
 
-        # Remove the input movie video
-        #os.remove(source_input_file_path)
+        # Remove the input movie video, if we have adequate permissions
+        try:
+            os.remove(source_input_file_path)
+        except Exception as e :
+            print('Tried to delete %s, but was unable to do so for some reason' % source_input_file_path)
 
         # Remove the temporary folder we created
         shutil.rmtree(dlc_container_path)
@@ -100,7 +103,7 @@ def evaluate_on_one_video(source_input_file_name, lock_file_name, destination_ou
         lock_file_path = os.path.join(source_input_file_name + ".lock")
         if os.path.exists(lock_file_path) :
             os.remove(lock_file_path)
-        # cd back to the initual folder
+        # cd back to the initial folder
         os.chdir(initial_folder_path)
         # Re-throw the exception
         raise e
