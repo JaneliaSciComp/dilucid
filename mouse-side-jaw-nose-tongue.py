@@ -74,8 +74,8 @@ def evaluate_on_folder(source_folder_path, output_folder_path, n_submitted):
                         print("current time: %s" % current_time)
                         print("source mod time: %s" % source_modification_time)
                         print("target mod time: %s" % target_modification_time)                      
-                        do_it = ( source_modification_time >= target_modification_time ) and 
-                                  (current_time > source_modification_time + waiting_period )
+                        do_it = ( ( source_modification_time >= target_modification_time ) and 
+                                  ( current_time > source_modification_time + waiting_period ) )
                     else :
                         # The file exists, but is neither a file or a folder.  WTF?
                         print("An object exists at target location %s, but it's neigher a file nor a folder.  Not submitting a job." 
@@ -89,12 +89,17 @@ def evaluate_on_folder(source_folder_path, output_folder_path, n_submitted):
             if do_it_for_reals :    
                 if not has_been_run_on_one_file_in_this_folder :
                     os.makedirs(output_folder_path, exist_ok=True)
-                    has_been_run_on_one_file = true            
+                    has_been_run_on_one_file = True            
                     subprocess.call('/usr/bin/touch "%s"' % lock_file_path, shell=True)
                     stdout_file_path = os.path.join(output_folder_path, replace_extension(source_file_name, '-stdout.txt'))
                     stderr_file_path = os.path.join(output_folder_path, replace_extension(source_file_name, '-stderr.txt'))
-                    command_line = ( 'bsub -o "%s" -e "%s" -q gpu_any -n1 -gpu "num=1" singularity exec ' +
-                                     '-B /scratch,/nrs --nv dlc.simg python3 mouse-side-jaw-nose-tongue-one.py "%s" "%s" "%s"' 
+                    print("stdout_file_path: %s" % stdout_file_path)
+                    print("stderr_file_path: %s" % stderr_file_path)
+                    print("source_file_path: %s" % source_file_path)
+                    print("lock_file_path: %s"   % lock_file_path)
+                    print("target_file_path: %s" % target_file_path)
+                    command_line = ( ( 'bsub -o "%s" -e "%s" -q gpu_any -n1 -gpu "num=1" singularity exec ' +
+                                       '-B /scratch,/nrs --nv dlc.simg python3 mouse-side-jaw-nose-tongue-one.py "%s" "%s" "%s"' )
                                      % (stdout_file_path, stderr_file_path, source_file_path, lock_file_path, target_file_path) )
                     print('About to subprocess.call(): %s' % command_line)
                     print("PATH: %s" % os.environ['PATH'])
@@ -105,7 +110,8 @@ def evaluate_on_folder(source_folder_path, output_folder_path, n_submitted):
     # for each dir in names_of_folders_in_source_folder, recurse
     for source_subfolder_name in names_of_folders_in_source_folder:
         n_submitted = evaluate_on_folder(os.path.join(source_folder_path, source_subfolder_name),
-                                      n_submitted)
+                                         os.path.join(output_folder_path, source_subfolder_name),
+                                         n_submitted)
                     
     # return the updated count of copied files
     return n_submitted
