@@ -11,7 +11,7 @@ import pwd
 def get_username():
     return pwd.getpwuid( os.getuid() )[ 0 ]
 
-def evaluate_on_one_video(source_input_file_name):
+def evaluate_on_one_video(source_input_file_name, lock_file_name, destination_output_file_name):
     this_script_path = os.path.realpath(__file__)
     this_script_folder_path = os.path.dirname(this_script_path)
     source_dlc_root_path = os.path.normpath(os.path.join(this_script_folder_path, "dlc-modded"))
@@ -63,16 +63,7 @@ def evaluate_on_one_video(source_input_file_name):
         source_output_file_path = os.path.join(dlc_root_path,
                                                "videos",
                                                "the-video" + "DeepCut_resnet50_licking-side2Jul11shuffle1_400000" + output_file_extension)
-        if len(sys.argv) >= 3 :
-            destination_output_file_name = sys.argv[2]
-            if os.path.isabs(destination_output_file_name) :
-                destination_output_file_path = destination_output_file_name
-            else :
-                destination_output_file_path = os.path.abspath(destination_output_file_name)
-        else :
-            source_input_file_folder_path = os.path.dirname(source_input_file_path)
-            destination_output_file_path = os.path.join(source_input_file_folder_path,
-                                                        input_file_stem_name + output_file_extension)
+        destination_output_file_path = os.path.abspath(destination_output_file_name)
 
         # Check the umask
         print("umask -S:")
@@ -97,7 +88,7 @@ def evaluate_on_one_video(source_input_file_name):
         shutil.rmtree(dlc_container_path)
 
         # Remove the lock file
-        lock_file_path = os.path.join(source_input_file_name + ".lock")
+        lock_file_path = os.path.abspath(lock_file_name)
         if os.path.exists(lock_file_path) :
             os.remove(lock_file_path)
 
@@ -118,5 +109,7 @@ def evaluate_on_one_video(source_input_file_name):
 
 # main
 video_file_path = os.path.abspath(sys.argv[1])
-evaluate_on_one_video(video_file_path)
+lock_file_path = os.path.abspath(sys.argv[2])
+output_file_path = os.path.abspath(sys.argv[3])
+evaluate_on_one_video(video_file_path, lock_file_path, output_file_path)
 

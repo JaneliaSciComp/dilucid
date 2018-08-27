@@ -19,5 +19,5 @@ printenv PATH
 
 umask u=rwx,g=rwx,o=  # want created files, dirs to be group-writable
 cd ${THIS_DIR}
-python3 mouse-side-jaw-nose-tongue.py /nrs/svoboda/dlc-drop-mouse-side-jaw-nose-tongue
+python3 mouse-side-jaw-nose-tongue.py /nrs/svoboda/dlc-drop-mouse-side-jaw-nose-tongue /nrs/svoboda/dlc-drop-mouse-side-jaw-nose-tongue-output
 #touch /nrs/svoboda/dlc-drop-mouse-side-jaw-nose-tongue/done-at-modification-time-of-me.txt
