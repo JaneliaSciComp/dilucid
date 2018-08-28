@@ -1,3 +1,5 @@
+Dilucid
+
 This project is a cron job that runs on login1.int.janelia.org.  It
 monitors a folder (currently
 /nrs/svoboda/dlc-drop-mouse-side-jaw-nose-tongue) for .avi files, and
