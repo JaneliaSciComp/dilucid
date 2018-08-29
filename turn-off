@@ -1,0 +1,3 @@
+#! /bin/bash
+
+crontab -l | grep --invert-match "# DILUCID" | crontab

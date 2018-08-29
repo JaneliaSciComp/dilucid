@@ -50,7 +50,7 @@ def evaluate_on_one_video(input_file_path,
         configuration_file_name = "myconfig_analysis.py" ;
         configuration_file_path = os.path.join(network_folder_path, configuration_file_name)
         scratch_configuration_file_path = os.path.join(scratch_dlc_root_folder_path, configuration_file_name)
-        shutil.copyfile(configuration_file_path, scratch_configuration_file_path_path)
+        shutil.copyfile(configuration_file_path, scratch_configuration_file_path)
         
         # There should be exactly one folder within the network folder.
         # That's the "model" folder, which contains two folders: "test" and "train".
@@ -73,7 +73,7 @@ def evaluate_on_one_video(input_file_path,
         model_folder_path = os.path.join(network_folder_path, model_folder_name)
         
         # Copy the model folder to the scratch DLC folder, in the right place
-        scratch_model_folder_path = os.join(scratch_dlc_root_folder_path, "pose-tensorflow", "models", model_folder_name)
+        scratch_model_folder_path = os.path.join(scratch_dlc_root_folder_path, "pose-tensorflow", "models", model_folder_name)
         shutil.copytree(model_folder_path, scratch_model_folder_path)
 
         # Copy the input video to the "videos" folder within the scratch DLC folder

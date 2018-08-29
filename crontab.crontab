@@ -1,1 +1,0 @@
-0,5,10,15,20,25,30,35,40,45,50,55 * * * *     flock --nonblock /nrs/svoboda/dilucid-drop --command /groups/svoboda/home/svobodalab/dilucid/dilucid

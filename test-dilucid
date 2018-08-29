@@ -1,0 +1,23 @@
+#! /bin/bash
+
+#echo "About to print the variable PATH in the njt bash shell:"
+#echo $PATH
+
+echo "About source the LSF profile script"
+source /misc/lsf/conf/profile.lsf
+
+#echo "About to set the path..."
+#export PATH=${PATH}:/misc/lsf/10.1/linux3.10-glibc2.17-x86_64/bin
+
+#echo "About to print the variable PATH in the njt bash shell:"
+#echo $PATH
+
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+
+echo "About to print the PATH environment variable in the dilucid bash shell:"
+printenv PATH
+
+umask u=rwx,g=rwx,o=  # want created files, dirs to be group-writable
+cd ${THIS_DIR}
+python3 dilucid.py $THIS_DIR/test-folder $THIS_DIR/test-folder-output
+#touch /nrs/svoboda/dlc-drop-mouse-side-jaw-nose-tongue/done-at-modification-time-of-me.txt

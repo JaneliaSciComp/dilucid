@@ -3,4 +3,5 @@ dlc-modded
 __pycache__
 test-folder
 virgin-test-folder
+test-folder-output
 *.avi
