@@ -7,12 +7,47 @@ import shutil
 import runpy
 import subprocess
 import pwd
+import pathlib
 
 def get_username():
     return pwd.getpwuid( os.getuid() )[ 0 ]
 
 def is_empty(list) :
     return len(list)==0
+
+def delete_input_file_and_empty_ancestral_folders(input_file_path_as_string, network_folder_path_as_string) :
+    input_file_path = pathlib.Path(input_file_path_as_string)
+    network_folder_path = pathlib.Path(network_folder_path_as_string)
+
+    try :
+        os.remove(str(input_file_path))
+    except Exception as e :
+        print('Tried to delete file %s, but was unable to do so for some reason' % input_file_path)
+        return        
+    
+    single_network_folder_path = network_folder_path.parent ;
+    common_path = pathlib.Path(os.path.commonpath([str(single_network_folder_path), str(input_file_path)]))
+    if common_path != single_network_folder_path :
+        print('Internal error: When checking for empty input folders, the single network path (%s) is not the common path for it and the input file path (%s)' %
+              str(single_network_folder_path), 
+              str(input_file_path))
+        return
+
+    target_folder_path = input_file_path.parent
+    is_done = ( target_folder_path == single_network_folder_path )
+    while not is_done :
+        contents = os.listdir(str(target_folder_path)) 
+        if is_empty(contents) :
+            try :
+                os.rmdir(str(target_folder_path)) 
+            except Exception as e :
+                print('Tried to delete folder %s, but was unable to do so for some reason' % str(target_folder_path))
+                return    
+            target_folder_path = target_folder_path.parent
+            is_done = ( target_folder_path == single_network_folder_path )
+        else :
+            is_done = True 
+# end of function    
 
 def evaluate_on_one_video(input_file_path, 
                           network_folder_path, 
@@ -122,16 +157,14 @@ def evaluate_on_one_video(input_file_path,
         # Remove the scratch folder we created to hold the scratch DLC folder
         shutil.rmtree(scratch_dlc_container_path)
 
-        # Remove the input movie video, if we have adequate permissions
-        # But just keep on going if we don't
-        try:
-            os.remove(input_file_path)
-        except Exception as e :
-            print('Tried to delete %s, but was unable to do so for some reason' % input_file_path)
-
         # Remove the lock file
         if os.path.exists(lock_file_path) :
             os.remove(lock_file_path)
+
+        # Remove the input movie video, if we have adequate permissions
+        # But just keep on going if we don't
+        delete_input_file_and_empty_ancestral_folders(input_file_path, network_folder_path)                                           
+
 
     except Exception as e:
         # Try to clean up some before re-throwing

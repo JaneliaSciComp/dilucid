@@ -193,9 +193,9 @@ def process_dilucid_root_folder(root_folder_path, root_output_folder_path):
 
 
 # main
-source_root_folder_path = os.path.abspath(sys.argv[1])
+input_root_folder_path = os.path.abspath(sys.argv[1])
 output_root_folder_path = os.path.abspath(sys.argv[2])
-n_submitted = process_dilucid_root_folder(source_root_folder_path, output_root_folder_path)
+n_submitted = process_dilucid_root_folder(input_root_folder_path, output_root_folder_path)
 
 # print the number of jobs submitted
 print("%d jobs submitted total" % n_submitted)
