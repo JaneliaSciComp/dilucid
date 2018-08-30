@@ -16,7 +16,3 @@ rm -r dlc-modded/pose-tensorflow/models/UnaugmentedDataSet_reachingJan30
 pushd dlc-modded/pose-tensorflow/models/pretrained
 ./download.sh
 popd
-
-## Copy Mike's July 11 model into place in the parallel folder
-#cp -r licking-side2Jul11-trainset95shuffle1 dlc-modded/pose-tensorflow/models
-#cp myconfig_analysis.py dlc-modded

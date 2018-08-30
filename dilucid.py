@@ -29,6 +29,7 @@ def is_empty(list) :
 def process_files_in_one_folder(source_folder_path, names_of_source_files, output_folder_path, network_folder_path, n_submitted) :
     # Scan the source files, spawn a job for any without a .h5 file, 
     # or that are newer than the .h5 file.
+    print("In subfolder %s, found %d files" % (source_folder_path, len(names_of_source_files)))
     has_been_run_on_one_file_in_this_folder = False
     for source_file_name in names_of_source_files:
         if does_match_extension(source_file_name, ".avi") :
@@ -82,16 +83,29 @@ def process_files_in_one_folder(source_folder_path, names_of_source_files, outpu
                     print('About to subprocess.call(): %s' % command_line)
                     print("PATH: %s" % os.environ['PATH'])
                     print("PWD: %s" % os.environ['PWD'])
-                    subprocess.call(command_line, shell=True)
-                    n_submitted = n_submitted + 1
+                    return_code = subprocess.call(command_line, shell=True)
+                    if return_code == 0 :
+                        n_submitted = n_submitted + 1
+                    else :
+                        print('bsub call failed!')
+                        try :
+                            if os.path.exists(lock_file_path) :
+                                os.remove(lock_file_path)
+                        except Exception as e :
+                            print('...and unable to delete lock file %s for some reason' % lock_file_path)                            
 
     return n_submitted
 # end of function
 
 
 def process_single_network_folder(input_folder_path, output_folder_path, network_folder_path_maybe, n_submitted) :
-    # print to show progress
-    print("%s:" % input_folder_path)
+    # print something to show progress
+    if is_empty(network_folder_path_maybe) :
+        # This means that we're in the root of the single-network
+        # folder, so we print a message to say this
+        print("Processing a single-network folder: %s" % input_folder_path)
+    else :
+        print("Processing subfolder: %s" % input_folder_path)
 
     # get a list of all files and dirs in the source, dest dirs
     try:
@@ -154,7 +168,7 @@ def process_single_network_folder(input_folder_path, output_folder_path, network
 
 
 def process_dilucid_root_folder(root_folder_path, root_output_folder_path):
-    # get a list of all files and dirs in the source, dest dirs
+    print("Processing the dilucid root folder: %s" % root_folder_path)
     n_submitted = 0
     try :
         root_folder_contents = os.listdir(root_folder_path)
