@@ -13,6 +13,7 @@ rm dlc-modded/Generating_a_Training_Set/*.ipynb
 rm -r dlc-modded/Generating_a_Training_Set/data-reaching
 rm -r dlc-modded/pose-tensorflow/models/reachingJan30-trainset95shuffle1
 rm -r dlc-modded/pose-tensorflow/models/UnaugmentedDataSet_reachingJan30
+rm-r dlc-modded/docs  # to save space
 pushd dlc-modded/pose-tensorflow/models/pretrained
 ./download.sh
 popd
