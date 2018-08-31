@@ -108,88 +108,11 @@ def evaluate_on_one_video(input_file_path,
                           network_folder_path, 
                           lock_file_path, 
                           output_file_path):
-
-    # Determine the absolute path to the "reference" DLC folder
-    this_script_path = os.path.realpath(__file__)
-    this_script_folder_path = os.path.dirname(this_script_path)
-    template_dlc_root_folder_path = os.path.normpath(os.path.join(this_script_folder_path, "dlc-modded"))
-
-    # Determine the absolute path to the parent temp folder that we can write to (e.g. /scratch/svobodalab)
-    initial_working_folder_path = os.getcwd()
-    print("username is %s" % get_username()) 
-    scratch_folder_path = os.path.join("/scratch", get_username())
-    print("scratch_folder_path is %s" % scratch_folder_path) 
-
-    scratch_dlc_container_path_maybe = []  # want to keep track of this so we know whether or not to delete it
     try:
-        # Make a temporary folder to hold the temporary DLC folder
-        # (want to have them for different instances running on same
-        # node without collisions)
-        scratch_dlc_container_path = tempfile.mkdtemp(prefix=scratch_folder_path+"/")
-        scratch_dlc_container_path_maybe = [scratch_dlc_container_path]
-        print("scratch_dlc_container_path is %s" % scratch_dlc_container_path) 
-
-        # Determine the absolute path to the temporary DLC folder 
-        scratch_dlc_root_folder_path = os.path.join(scratch_dlc_container_path, "dlc-modded") ;
-        print("scratch_dlc_root_folder_path is %s" % scratch_dlc_root_folder_path) 
-
-        # Copy the reference DLC folder to the scratch one
-        shutil.copytree(template_dlc_root_folder_path, scratch_dlc_root_folder_path)
-
-        # Copy the configuration file into the scratch DLC folder
-        configuration_file_name = "myconfig_analysis.py" ;
-        configuration_file_path = os.path.join(network_folder_path, configuration_file_name)
-        scratch_configuration_file_path = os.path.join(scratch_dlc_root_folder_path, configuration_file_name)
-        shutil.copyfile(configuration_file_path, scratch_configuration_file_path)
-        
-        # There should be exactly one folder within the network folder.
-        # That's the "model" folder, which contains two folders: "test" and "train".
-        # get a list of all files and dirs in the source, dest dirs
-        try:
-            network_folder_contents = os.listdir(network_folder_path)
-        except FileNotFoundError :
-            # if we can't list the folder, give up
-            raise RuntimeError("Network folder %s doesn't seem to exist" % network_folder_path)   
-        except PermissionError :
-            # if we can't list the dir, warn but continue
-            raise RuntimeError("Can't list contents of network folder %s due to permissions error" % network_folder_path)
-        names_of_folders = [item
-                            for item
-                            in network_folder_contents
-                            if os.path.isdir(os.path.join(network_folder_path, item))]
-        if is_empty(names_of_folders) :
-            raise RuntimeError("Network folder %s has no subfolders" % network_folder_path)
-        model_folder_name = names_of_folders[0] ;
-        print("model_folder_name: %s" % model_folder_name)
-        model_folder_path = os.path.join(network_folder_path, model_folder_name)
-        
-        # Copy the model folder to the scratch DLC folder, in the right place
-        scratch_model_folder_path = os.path.join(scratch_dlc_root_folder_path, "pose-tensorflow", "models", model_folder_name)
-        shutil.copytree(model_folder_path, scratch_model_folder_path)
-
-        # Copy the input video to the "videos" folder within the scratch DLC folder
-        input_file_base_name = os.path.basename(input_file_path)
-        (input_file_stem_name, input_file_extension) = os.path.splitext(input_file_base_name)
-        scratch_input_file_path = os.path.join(scratch_dlc_root_folder_path,
-                                                 "videos",
-                                                 "the-video" + input_file_extension)
-        shutil.copyfile(input_file_path, scratch_input_file_path)
-
-        # Determine absolute path to the (scratch version of the) video-analysis script
-        analysis_folder_path = os.path.join(scratch_dlc_root_folder_path, "Analysis-tools")
-        analyze_video_script_path = os.path.join(analysis_folder_path, "AnalyzeVideos.py")
-        print("analysis_folder_path: %s\n" % analysis_folder_path)
-        print("analyze_video_script_path: %s\n" % analyze_video_script_path)
-
-        # cd into the scratch analysis folder, run the script, cd back
-        os.chdir(analysis_folder_path)
-        runpy.run_path(analyze_video_script_path)
-        os.chdir(initial_working_folder_path)
-
-        # Print the umask
-        print("umask -S:")
-        os.system("umask -S")
-        print("")
+        # # Print the umask
+        # print("umask -S:")
+        # os.system("umask -S")
+        # print("")
 
         # Set the umask so group members can delete stuff
         # The umask is u=rwx, g=rx, u=rx, for some reason...
@@ -198,28 +121,13 @@ def evaluate_on_one_video(input_file_path,
         # but others have no access
         os.umask(0o007)
 
-        # Copy the scratch output file to the final output file location
-        output_file_extension = ".h5"
-        scratch_output_file_path = find_output_file(os.path.join(scratch_dlc_root_folder_path,
-                                                                 "videos") ,
-                                                    output_file_extension)
-        print("About to copy result to final location...")
-        print("scratch_output_file_path: %s" % scratch_output_file_path)
-        print("output_file_path: %s" % output_file_path)
-        shutil.copyfile(scratch_output_file_path, output_file_path)
-
-        # Copy the scratch optional output file to the final output file location, if it exists
-        optional_output_file_extension = ".csv"
-        scratch_optional_output_file_path_maybe = find_optional_output_file(os.path.join(scratch_dlc_root_folder_path,
-                                                                                         "videos") ,
-                                                                            optional_output_file_extension)
-        if not is_empty(scratch_optional_output_file_path_maybe) :
-            scratch_optional_output_file_path = scratch_optional_output_file_path_maybe[0]
-            optional_output_file_path = replace_extension(output_file_path, optional_output_file_extension)
-            shutil.copyfile(scratch_optional_output_file_path, optional_output_file_path)
-
-        # Remove the scratch folder we created to hold the scratch DLC folder
-        shutil.rmtree(scratch_dlc_container_path)
+        # Run the DLC eval script in a subprocess
+        this_script_path = os.path.realpath(__file__)
+        this_script_folder_path = os.path.dirname(this_script_path)
+        dlc_eval_script_path = os.path.join(this_script_folder_path, 'dlc-evaluate-one-video.py')
+        return_code = subprocess.call(['/usr/bin/python3', dlc_eval_script_path, input_file_path, network_folder_path, output_file_path])
+        if return_code != 0 :
+            except RuntimeError('Calling the DLC analysis script failed!')        
 
         # Remove the lock file
         if os.path.exists(lock_file_path) :
@@ -229,19 +137,13 @@ def evaluate_on_one_video(input_file_path,
         # But just keep on going if we don't
         delete_input_file_and_empty_ancestral_folders(input_file_path, network_folder_path)                                           
 
-
     except Exception as e:
         # Try to clean up some before re-throwing
 
-        # Remove the scratch folder
-        if not is_empty(scratch_dlc_container_path_maybe) :
-            shutil.rmtree(scratch_dlc_container_path_maybe[0])
         # Remove the lock file
         lock_file_path = os.path.join(input_file_path + ".lock")
         if os.path.exists(lock_file_path) :
             os.remove(lock_file_path)
-        # cd back to the initial folder
-        os.chdir(initial_working_folder_path)
         # Re-throw the exception
         raise e
 # end of function
