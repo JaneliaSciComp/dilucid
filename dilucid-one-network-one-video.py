@@ -20,8 +20,13 @@ def does_match_extension(file_name, target_extension) :
     extension = os.path.splitext(file_name)[1]
     return (extension == target_extension)
 
-def find_output_file(output_folder_path, output_file_extension) :
-    # get a list of all files and dirs in the source, dest dirs
+def replace_extension(file_name, new_extension) :
+    # new_extension should include the dot
+    base_name = os.path.splitext(file_name)[0]
+    return base_name + new_extension
+
+def find_files_matching_extension(output_folder_path, output_file_extension) :
+    # get a list of all files and folders in the output_folder_path
     try:
         names_of_files_and_subfolders = os.listdir(output_folder_path)
     except FileNotFoundError :
@@ -35,6 +40,11 @@ def find_output_file(output_folder_path, output_file_extension) :
                                  names_of_files_and_subfolders))
     names_of_matching_files = list(filter((lambda file_name: does_match_extension(file_name, output_file_extension)) , 
                                           names_of_files))
+    return names_of_matching_files
+# end of function
+
+def find_output_file(output_folder_path, output_file_extension) :
+    names_of_matching_files = find_files_matching_extension(output_folder_path, output_file_extension)
     matching_file_count = len(names_of_matching_files)
     if matching_file_count == 0 :
         raise RuntimeError("Unable to locate output file with extension %s in folder %s.  Maybe it wasn't produced?" 
@@ -45,6 +55,19 @@ def find_output_file(output_folder_path, output_file_extension) :
 
     return os.path.join(output_folder_path, names_of_matching_files[0]) 
 # end of function
+
+def find_optional_output_file(output_folder_path, output_file_extension) :
+    names_of_matching_files = find_files_matching_extension(output_folder_path, output_file_extension)
+    matching_file_count = len(names_of_matching_files)
+    if matching_file_count == 0 :
+        return []
+    if matching_file_count > 1 :
+        raise RuntimeError("More than one file with extension %s in folder %s.  Not sure which one is the right one." 
+                           % (output_file_extension, output_folder_path))
+
+    return [os.path.join(output_folder_path, names_of_matching_files[0])]
+# end of function
+
 
 def delete_input_file_and_empty_ancestral_folders(input_file_path_as_string, network_folder_path_as_string) :
     input_file_path = pathlib.Path(input_file_path_as_string)
@@ -184,6 +207,16 @@ def evaluate_on_one_video(input_file_path,
         print("scratch_output_file_path: %s" % scratch_output_file_path)
         print("output_file_path: %s" % output_file_path)
         shutil.copyfile(scratch_output_file_path, output_file_path)
+
+        # Copy the scratch optional output file to the final output file location, if it exists
+        optional_output_file_extension = ".csv"
+        scratch_optional_output_file_path_maybe = find_optional_output_file(os.path.join(scratch_dlc_root_folder_path,
+                                                                                         "videos") ,
+                                                                            optional_output_file_extension)
+        if not is_empty(scratch_optional_output_file_path_maybe) :
+            scratch_optional_output_file_path = scratch_optional_output_file_path_maybe[0]
+            optional_output_file_path = replace_extension(output_file_path, optional_output_file_extension)
+            shutil.copyfile(scratch_optional_output_file_path, optional_output_file_path)
 
         # Remove the scratch folder we created to hold the scratch DLC folder
         shutil.rmtree(scratch_dlc_container_path)
