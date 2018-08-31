@@ -234,8 +234,8 @@ def evaluate_on_one_video(input_file_path,
         # Try to clean up some before re-throwing
 
         # Remove the scratch folder
-        #if not is_empty(scratch_dlc_container_path_maybe) :
-        #    shutil.rmtree(scratch_dlc_container_path_maybe[0])
+        if not is_empty(scratch_dlc_container_path_maybe) :
+            shutil.rmtree(scratch_dlc_container_path_maybe[0])
         # Remove the lock file
         lock_file_path = os.path.join(input_file_path + ".lock")
         if os.path.exists(lock_file_path) :
