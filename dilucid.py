@@ -78,7 +78,7 @@ def process_files_in_one_folder(source_folder_path, names_of_source_files, outpu
                     print("lock_file_path: %s"   % lock_file_path)
                     print("target_file_path: %s" % target_file_path)
                     command_line = ( ( 'bsub -o "%s" -e "%s" -q gpu_any -n2 -gpu "num=1" singularity exec ' +
-                                       '-B /scratch,/nrs --nv dlc.simg python3 dilucid-one-network-one-video.py "%s" "%s" "%s" "%s"' )
+                                       '-B /nrs --nv dlc.simg python3 dilucid-one-network-one-video.py "%s" "%s" "%s" "%s"' )
                                      % (stdout_file_path, stderr_file_path, source_file_path, network_folder_path, lock_file_path, target_file_path) )
                     print('About to subprocess.call(): %s' % command_line)
                     print("PATH: %s" % os.environ['PATH'])
