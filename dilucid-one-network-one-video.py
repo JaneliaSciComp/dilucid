@@ -127,7 +127,7 @@ def evaluate_on_one_video(input_file_path,
         dlc_eval_script_path = os.path.join(this_script_folder_path, 'dlc-evaluate-one-video.py')
         return_code = subprocess.call(['/usr/bin/python3', dlc_eval_script_path, input_file_path, network_folder_path, output_file_path])
         if return_code != 0 :
-            except RuntimeError('Calling the DLC analysis script failed!')        
+            raise RuntimeError('Calling the DLC analysis script failed!')        
 
         # Remove the lock file
         if os.path.exists(lock_file_path) :
