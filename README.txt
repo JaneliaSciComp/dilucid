@@ -49,10 +49,6 @@ singularity will complain.)  After this completes, you may want to
 chown/chmod dlc.simg to make it owned by you, and have normal file
 permissions.
 
-Next, run the provided build script:
-
-    ./build
-
 Next, modify the "dilucid" bash script to point to the folders you
 want to use for input and output.
 
@@ -71,5 +67,5 @@ After this, the contents of the input folder should automatically get
 processed every 5 minutes.
 
 ALT
-2018-08-29
+2018-09-04
 
