@@ -19,5 +19,6 @@ THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 umask u=rwx,g=rwx,o=  # want created files, dirs to be group-writable
 cd ${THIS_DIR}
-python3 dilucid.py /nrs/svoboda/dilucid-drop /nrs/svoboda/dilucid-drop-output
+source dilucid-configuration
+python3 dilucid.py $INPUT_FOLDER_PATH $OUTPUT_FOLDER_PATH
 #touch /nrs/svoboda/dlc-drop-mouse-side-jaw-nose-tongue/done-at-modification-time-of-me.txt
