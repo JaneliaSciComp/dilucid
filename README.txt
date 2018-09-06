@@ -1,12 +1,12 @@
 Dilucid
 
 This project implements a cron job that runs on
-login1.int.janelia.org.  It monitors a folder (currently
-/nrs/svoboda/dilucid-drop) for .avi files, and
-when it finds them it runs DeepLabCut on them, placing the output .h5
-file in a parallel location in
+login1.int.janelia.org.  It monitors a folder (usually named something
+like /something/something/dilucid-drop) for .avi files, and when it
+finds them it runs DeepLabCut on them, placing the output .h5 file in
+a parallel location, typically named something like
 
-    /nrs/svoboda/dilucid-drop-output .
+    /something/something/dilucid-drop-output .
 
 Each folder under dilucid-drop is a "single-network folder".  The
 network used to analyze the videos placed in that folder is found in a
@@ -49,11 +49,10 @@ singularity will complain.)  After this completes, you may want to
 chown/chmod dlc.simg to make it owned by you, and have normal file
 permissions.
 
-Next, modify the "dilucid" bash script to point to the folders you
-want to use for input and output.
-
-Next, modify dilucid-line.cron to point to your input folder and the
-absolute path of the "dilucid" bash script.
+Next, create a file name dilucid-configuration that points to the
+folders you want to use for input and output.  See
+dilucid-configuration-svoboda and dilucid-configuration-dudman for
+examples.
 
 Next, if you have no jobs in your current crontab that you want to
 keep, do
@@ -67,5 +66,4 @@ After this, the contents of the input folder should automatically get
 processed every 5 minutes.
 
 ALT
-2018-09-04
-
+2018-09-06
