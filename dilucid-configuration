@@ -1,4 +1,0 @@
-#! /bin/bash
-
-INPUT_FOLDER_PATH=/nrs/svoboda/dilucid-drop
-OUTPUT_FOLDER_PATH=/nrs/svoboda/dilucid-drop-output

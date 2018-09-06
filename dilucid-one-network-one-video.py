@@ -114,6 +114,12 @@ def evaluate_on_one_video(input_file_path,
         # os.system("umask -S")
         # print("")
 
+        # Make sure the input file exists within the container.  This
+        # can fail because all the right folders have not been mounted
+        # in the call to bsub.
+        if not os.path.exists(input_file_path) :
+            raise RuntimeError("Input file %s does not exist!  Did you mount all the needed folders with the -B option to bsub?" % input_file_path)
+
         # Set the umask so group members can delete stuff
         # The umask is u=rwx, g=rx, u=rx, for some reason...
         # (The bsub?  The singularity container?)  Dunno...
@@ -141,9 +147,11 @@ def evaluate_on_one_video(input_file_path,
         # Try to clean up some before re-throwing
 
         # Remove the lock file
-        lock_file_path = os.path.join(input_file_path + ".lock")
+        #print("Exception caught, about to delete lock file at %s" % lock_file_path)
         if os.path.exists(lock_file_path) :
+            #print("Lock file exists, about to delete lock file at %s" % lock_file_path) 
             os.remove(lock_file_path)
+ 
         # Re-throw the exception
         raise e
 # end of function
