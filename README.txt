@@ -1,5 +1,12 @@
 Dilucid
 
+This project is based on the DeepLabCut project:
+
+https://github.com/AlexEMG/DeepLabCut
+
+All the code under the dlc folder is the original DeepLabCut code, and
+therefore carries its own copyright and license (GPLv3).
+
 This project implements a cron job that runs on
 login1.int.janelia.org.  It monitors a folder (usually named something
 like /something/something/dilucid-drop) for .avi files, and when it
@@ -66,4 +73,5 @@ After this, the contents of the input folder should automatically get
 processed every 5 minutes.
 
 ALT
-2018-09-06
+2018-10-29
+
