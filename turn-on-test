@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# cd into the folder where this file resides
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+cd ${THIS_DIR}
+
+# Define the per-installation environment variables
+source dilucid-configuration
+
+# Send the current crontab to stdout, filter out lines containing
+# "#DILUCID", append the line to run dilucid, and pipe the result into
+# crontab again
+{
+crontab -l | grep --invert-match \#DILUCID_TEST 
+echo "0,5,10,15,20,25,30,35,40,45,50,55 * * * *     flock --nonblock '${INPUT_FOLDER_PATH}' --command '${THIS_DIR}/dilucid'   #DILUCID_TEST"
+} | crontab

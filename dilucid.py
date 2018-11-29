@@ -96,7 +96,7 @@ def process_files_in_one_folder(mount_folder_path, source_folder_path, names_of_
                     print("lock_file_path: %s"   % lock_file_path)
                     print("target_file_path: %s" % target_file_path)
                     command_line = ( ( 'bsub -o "%s" -e "%s" -q gpu_any -n2 -gpu "num=1" singularity exec ' +
-                                       '-B "%s" --nv dlc.simg python3 dilucid-one-network-one-video.py "%s" "%s" "%s" "%s"' )
+                                       '-B "%s" --nv delectable/dlc.simg python3 dilucid-one-network-one-video.py "%s" "%s" "%s" "%s"' )
                                      % (stdout_file_path, stderr_file_path, mount_folder_path, source_file_path, network_folder_path, lock_file_path, target_file_path) )
                     print('About to subprocess.call(): %s' % command_line)
                     print("PATH: %s" % os.environ['PATH'])
@@ -228,12 +228,11 @@ def process_dilucid_root_folder(root_folder_path, root_output_folder_path):
 # end of process_dilucid_root_folder
 
 
-
-
+#
 # main
-input_root_folder_path = os.path.abspath(sys.argv[1])
-output_root_folder_path = os.path.abspath(sys.argv[2])
-n_submitted = process_dilucid_root_folder(input_root_folder_path, output_root_folder_path)
-
-# print the number of jobs submitted
-print("%d jobs submitted total" % n_submitted)
+#
+if __name__ == '__main__':
+    input_root_folder_path = os.path.abspath(sys.argv[1])
+    output_root_folder_path = os.path.abspath(sys.argv[2])
+    n_submitted = process_dilucid_root_folder(input_root_folder_path, output_root_folder_path)
+    print("%d jobs submitted total" % n_submitted)
