@@ -98,7 +98,7 @@ def evaluate_on_one_video(input_file_path,
         this_script_path = os.path.realpath(__file__)
         this_script_folder_path = os.path.dirname(this_script_path)
         dlc_eval_script_path = os.path.join(this_script_folder_path, 'delectable', 'apply_model.py')
-        return_code = subprocess.call(['/usr/bin/python3', dlc_eval_script_path, input_file_path, network_folder_path, output_file_path])
+        return_code = subprocess.call(['/usr/bin/python3', dlc_eval_script_path, network_folder_path, input_file_path, output_file_path])
         if return_code != 0 :
             raise RuntimeError('Calling the DLC analysis script failed!')        
 
