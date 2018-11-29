@@ -1,0 +1,4 @@
+#! /bin/bash
+
+# Filter any lines containing '#DILUCID_TEST' out of the crontab
+crontab -l | grep --invert-match "#DILUCID_TEST" | crontab

@@ -1,0 +1,4 @@
+#! /bin/bash
+
+INPUT_FOLDER_PATH=/groups/svoboda/home/svobodalab/dilucid-offline/test-folder
+OUTPUT_FOLDER_PATH=/groups/svoboda/home/svobodalab/dilucid-offline/test-folder-output
