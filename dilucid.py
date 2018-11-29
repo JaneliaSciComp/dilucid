@@ -43,7 +43,7 @@ def common_prefix_path(path1_as_string, path2_as_string) :
     result_as_string = os.path.join(*result_as_tuple)
     return result_as_string
 
-def process_files_in_one_folder(mount_folder_path, source_folder_path, names_of_source_files, output_folder_path, network_folder_path, n_submitted) :
+def process_files_in_one_folder(dilucid_code_folder_path, mount_folder_path, source_folder_path, names_of_source_files, output_folder_path, network_folder_path, n_submitted) :
     # Scan the source files, spawn a job for any without a .h5 file, 
     # or that are newer than the .h5 file.
     print("In subfolder %s, found %d files" % (source_folder_path, len(names_of_source_files)))
@@ -86,22 +86,41 @@ def process_files_in_one_folder(mount_folder_path, source_folder_path, names_of_
                 if not has_been_run_on_one_file_in_this_folder :
                     os.makedirs(output_folder_path, exist_ok=True)
                     has_been_run_on_one_file = True            
-                    subprocess.call('/usr/bin/touch "%s"' % lock_file_path, shell=True)
+                    #subprocess.call('/usr/bin/touch "%s"' % lock_file_path, shell=True)
+                    pathlib.Path(lock_file_path).touch()
                     stdout_file_path = os.path.join(output_folder_path, replace_extension(source_file_name, '-stdout.txt'))
                     stderr_file_path = os.path.join(output_folder_path, replace_extension(source_file_name, '-stderr.txt'))
+                    delectable_path = os.path.join(dilucid_code_folder_path, 'delectable') 
+                    singularity_image_path = os.path.join(delectable_path, 'dlc.simg')
                     print("stdout_file_path: %s" % stdout_file_path)
                     print("stderr_file_path: %s" % stderr_file_path)
                     print("mount_folder_path: %s" % mount_folder_path)
                     print("source_file_path: %s" % source_file_path)
                     print("lock_file_path: %s"   % lock_file_path)
                     print("target_file_path: %s" % target_file_path)
-                    command_line = ( ( 'bsub -o "%s" -e "%s" -q gpu_any -n2 -gpu "num=1" singularity exec ' +
-                                       '-B "%s" --nv delectable/dlc.simg python3 dilucid-one-network-one-video.py "%s" "%s" "%s" "%s"' )
-                                     % (stdout_file_path, stderr_file_path, mount_folder_path, source_file_path, network_folder_path, lock_file_path, target_file_path) )
-                    print('About to subprocess.call(): %s' % command_line)
+                    #command_line = ( ( 'bsub -o "%s" -e "%s" -q gpu_any -n2 -gpu "num=1" singularity exec ' +
+                    #                   '-B "%s" --nv delectable/dlc.simg python3 dilucid-one-network-one-video.py "%s" "%s" "%s" "%s"' )
+                    #                 % (stdout_file_path, stderr_file_path, mount_folder_path, source_file_path, network_folder_path, lock_file_path, target_file_path) )
+                    command_line_as_list = [ 'bsub', 
+                                             '-o', stdout_file_path, 
+                                             '-e', stderr_file_path, 
+                                             '-q', 'gpu_any',
+                                             '-n2', 
+                                             '-gpu', 'num=1', 
+                                             'singularity', 'exec',
+                                             '-B', mount_folder_path,
+                                             '--nv', singularity_image_path, 
+                                             '/usr/bin/python3', 
+                                             'dilucid-one-network-one-video.py',
+                                             source_file_path, 
+                                             network_folder_path, 
+                                             lock_file_path, 
+                                             target_file_path ]
+                    print('About to subprocess.call(): %s' % repr(command_line_as_list))
                     print("PATH: %s" % os.environ['PATH'])
                     print("PWD: %s" % os.environ['PWD'])
-                    return_code = subprocess.call(command_line, shell=True)
+                    #return_code = subprocess.call(command_line, shell=True)
+                    return_code = subprocess.call(command_line_as_list)
                     if return_code == 0 :
                         n_submitted = n_submitted + 1
                     else :
@@ -116,7 +135,7 @@ def process_files_in_one_folder(mount_folder_path, source_folder_path, names_of_
 # end of function
 
 
-def process_single_network_folder(mount_folder_path, input_folder_path, output_folder_path, network_folder_path_maybe, n_submitted) :
+def process_single_network_folder(dilucid_code_folder_path, mount_folder_path, input_folder_path, output_folder_path, network_folder_path_maybe, n_submitted) :
     # print something to show progress
     if is_empty(network_folder_path_maybe) :
         # This means that we're in the root of the single-network
@@ -167,7 +186,8 @@ def process_single_network_folder(mount_folder_path, input_folder_path, output_f
     # names_of_subfolders doesn't contain it (which is good)
 
     # Process the files in this folder
-    n_submitted = process_files_in_one_folder(mount_folder_path, 
+    n_submitted = process_files_in_one_folder(dilucid_code_folder_path, 
+                                              mount_folder_path, 
                                               input_folder_path, 
                                               names_of_files, 
                                               output_folder_path, 
@@ -176,7 +196,8 @@ def process_single_network_folder(mount_folder_path, input_folder_path, output_f
         
     # For each folder in names_of_subfolders, recurse
     for subfolder_name in names_of_subfolders:
-        n_submitted = process_single_network_folder(mount_folder_path, 
+        n_submitted = process_single_network_folder(dilucid_code_folder_path, 
+                                                    mount_folder_path, 
                                                     os.path.join(input_folder_path, subfolder_name),
                                                     os.path.join(output_folder_path, subfolder_name),
                                                     network_folder_path_maybe,
@@ -190,6 +211,9 @@ def process_single_network_folder(mount_folder_path, input_folder_path, output_f
 def process_dilucid_root_folder(root_folder_path, root_output_folder_path):
     print("Processing the dilucid root folder: %s" % root_folder_path)
     
+    path_to_this_script = os.path.realpath(__file__)
+    dilucid_code_folder_path = os.path.dirname(path_to_this_script)
+
     # Get the path to mount explicitly in call to bsub.
     # This heuristic works for the Svoboda Lab and Dudman Lab installs, but
     # not clear how well it will generalize in the future...
@@ -217,7 +241,8 @@ def process_dilucid_root_folder(root_folder_path, root_output_folder_path):
 
     # for each dir in names_of_folders_in_root_folder, run process_dilucid_network_folder
     for network_folder_name in names_of_folders_in_root_folder:
-        n_submitted_this = process_single_network_folder(mount_folder_path, 
+        n_submitted_this = process_single_network_folder(dilucid_code_folder_path, 
+                                                         mount_folder_path, 
                                                          os.path.join(root_folder_path, network_folder_name),
                                                          os.path.join(root_output_folder_path, network_folder_name),
                                                          [],

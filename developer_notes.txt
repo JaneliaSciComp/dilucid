@@ -1,0 +1,23 @@
+cron runs this:
+  flock --nonblock '${INPUT_FOLDER_PATH}' --command '${THIS_DIR}/dilucid'
+
+
+dilucid (a bash script) calls:
+  python3 dilucid.py $INPUT_FOLDER_PATH $OUTPUT_FOLDER_PATH
+
+
+dilucid.py figures out what videos need to be run, then calls:
+  command_line = ( ( 'bsub -o "%s" -e "%s" -q gpu_any -n2 -gpu "num=1" singularity exec ' +
+                     '-B "%s" --nv delectable/dlc.simg python3 dilucid-one-network-one-video.py "%s" "%s" "%s" "%s"' )                  
+                   % (stdout_file_path, stderr_file_path, mount_folder_path, source_file_path, network_folder_path, lock_file_path, target_file_path) )
+  return_code = subprocess.call(command_line, shell=True)
+  
+
+dilucid-one-network-one-video.py calls (on a GPU node, in a container):
+  dlc_eval_script_path = os.path.join(this_script_folder_path, 'delectable', 'apply_model.py')
+  return_code = subprocess.call(['/usr/bin/python3', dlc_eval_script_path, network_folder_path, input_file_path, output_file_path])  
+
+  (then it deletes the intput file, and any empty folders containing
+   it, recursively)  
+
+
