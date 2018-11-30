@@ -74,8 +74,14 @@ def delete_input_file_and_empty_ancestral_folders(input_file_path_as_string, net
 def evaluate_on_one_video(input_file_path, 
                           network_folder_path, 
                           lock_file_path, 
-                          output_file_path):
+                          output_file_path, 
+                          job_index_as_string_or_int):
     try:
+        if isinstance(job_index_as_string, str):
+            job_index = int(job_index_as_string_or_int)
+        else:
+            # apparently it's an int
+            job_index = job_index_as_string_or_int
         # # Print the umask
         # print("umask -S:")
         # os.system("umask -S")
@@ -101,6 +107,14 @@ def evaluate_on_one_video(input_file_path,
         return_code = subprocess.call(['/usr/bin/python3', dlc_eval_script_path, network_folder_path, input_file_path, output_file_path])
         if return_code != 0 :
             raise RuntimeError('Calling the delectable apply_model.py script failed!')
+
+        # If the job index is right, make a labeled video
+        labeled_video_period = 100  # make a labeled video every this many videos
+        if job_index % labeled_video_period == 0:
+            make_labeled_video_script_path = os.path.join(this_script_folder_path, 'delectable', 'make_labeled_video.py')
+            return_code = subprocess.call(['/usr/bin/python3', make_labeled_video_script_path, network_folder_path, input_file_path, output_file_path])
+            if return_code != 0 :                
+                print('Calling the delectable make_labeled_video.py script failed!')  # Don't error out for this
 
         # Remove the lock file
         if os.path.exists(lock_file_path) :
@@ -130,4 +144,12 @@ if __name__ == '__main__':
     network_folder_path = os.path.abspath(sys.argv[2])
     lock_file_path = os.path.abspath(sys.argv[3])
     output_file_path = os.path.abspath(sys.argv[4])
-    evaluate_on_one_video(video_file_path, network_folder_path, lock_file_path, output_file_path)
+    job_index_as_string = sys.argv[5]
+    
+    print('video_file_path: %s' % video_file_path)
+    print('network_folder_path: %s' % network_folder_path)
+    print('lock_file_path: %s' % lock_file_path)
+    print('output_file_path: %s' % output_file_path)
+    print('job_index_as_string: %s' % job_index_as_string)
+
+    evaluate_on_one_video(video_file_path, network_folder_path, lock_file_path, output_file_path, job_index_as_string)

@@ -101,6 +101,7 @@ def process_files_in_one_folder(dilucid_code_folder_path, mount_folder_path, sou
                     #command_line = ( ( 'bsub -o "%s" -e "%s" -q gpu_any -n2 -gpu "num=1" singularity exec ' +
                     #                   '-B "%s" --nv delectable/dlc.simg python3 dilucid-one-network-one-video.py "%s" "%s" "%s" "%s"' )
                     #                 % (stdout_file_path, stderr_file_path, mount_folder_path, source_file_path, network_folder_path, lock_file_path, target_file_path) )
+                    job_id = n_submitted   # will start from zero
                     command_line_as_list = [ 'bsub', 
                                              '-o', stdout_file_path, 
                                              '-e', stderr_file_path, 
@@ -115,7 +116,8 @@ def process_files_in_one_folder(dilucid_code_folder_path, mount_folder_path, sou
                                              source_file_path, 
                                              network_folder_path, 
                                              lock_file_path, 
-                                             target_file_path ]
+                                             target_file_path,
+                                             str(n_submitted) ]
                     print('About to subprocess.call(): %s' % repr(command_line_as_list))
                     print("PATH: %s" % os.environ['PATH'])
                     print("PWD: %s" % os.environ['PWD'])
