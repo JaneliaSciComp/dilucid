@@ -58,7 +58,7 @@ def delete_input_file_and_empty_ancestral_folders(input_file_path_as_string, net
     is_done = ( target_folder_path == single_network_folder_path )
     while not is_done :
         contents = os.listdir(str(target_folder_path)) 
-        if is_empty(contents) :
+        if dlct.is_empty(contents) :
             try :
                 os.rmdir(str(target_folder_path)) 
             except Exception as e :
