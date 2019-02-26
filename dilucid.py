@@ -49,7 +49,7 @@ def process_files_in_one_folder(dilucid_code_folder_path, mount_folder_path, sou
     print("In subfolder %s, found %d files" % (source_folder_path, len(names_of_source_files)))
     has_been_run_on_one_file_in_this_folder = False
     for source_file_name in names_of_source_files:
-        if does_match_extension(source_file_name, ".avi") :
+        if does_match_extension(source_file_name, ".avi") or does_match_extension(source_file_name, ".mp4") or does_match_extension(source_file_name, ".mov") :
             source_file_path = os.path.join(source_folder_path, source_file_name)
             lock_file_path = os.path.join(output_folder_path, source_file_name + ".lock")
             target_file_path = os.path.join(output_folder_path, replace_extension(source_file_name, ".h5"))
