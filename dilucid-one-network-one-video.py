@@ -112,7 +112,13 @@ def evaluate_on_one_video(input_file_path,
         labeled_video_period = 100  # make a labeled video every this many videos
         if job_index % labeled_video_period == 0:
             make_labeled_video_script_path = os.path.join(this_script_folder_path, 'delectable', 'make_labeled_video.py')
-            return_code = subprocess.call(['/usr/bin/python3', make_labeled_video_script_path, network_folder_path, input_file_path, output_file_path])
+            tracked_video_file_path = dlct.replace_extension(output_file_path, '.mp4')
+            return_code = subprocess.call(['/usr/bin/python3', 
+                                           make_labeled_video_script_path, 
+                                           network_folder_path, 
+                                           input_file_path, 
+                                           output_file_path, 
+                                           tracked_video_file_path])
             if return_code != 0 :                
                 print('Calling the delectable make_labeled_video.py script failed!')  # Don't error out for this
 
