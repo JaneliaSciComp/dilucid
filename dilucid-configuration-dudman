@@ -1,4 +1,5 @@
 #! /bin/bash
 
+PI_LAST_NAME=dudman
 INPUT_FOLDER_PATH=/groups/dudman/dudmanlab/dilucid-drop
 OUTPUT_FOLDER_PATH=/groups/dudman/dudmanlab/dilucid-drop-output
