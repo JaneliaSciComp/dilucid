@@ -76,71 +76,59 @@ def evaluate_on_one_video(input_file_path,
                           lock_file_path, 
                           output_file_path, 
                           job_index_as_string_or_int):
-    try:
-        if isinstance(job_index_as_string, str):
-            job_index = int(job_index_as_string_or_int)
-        else:
-            # apparently it's an int
-            job_index = job_index_as_string_or_int
-        # # Print the umask
-        # print("umask -S:")
-        # os.system("umask -S")
-        # print("")
+    if isinstance(job_index_as_string, str):
+        job_index = int(job_index_as_string_or_int)
+    else:
+        # apparently it's an int
+        job_index = job_index_as_string_or_int
+    # # Print the umask
+    # print("umask -S:")
+    # os.system("umask -S")
+    # print("")
 
-        # Make sure the input file exists within the container.  This
-        # can fail because all the right folders have not been mounted
-        # in the call to bsub.
-        if not os.path.exists(input_file_path) :
-            raise RuntimeError("Input file %s does not exist!  Did you mount all the needed folders with the -B option to bsub?" % input_file_path)
+    # Make sure the input file exists within the container.  This
+    # can fail because all the right folders have not been mounted
+    # in the call to bsub.
+    if not os.path.exists(input_file_path) :
+        raise RuntimeError("Input file %s does not exist!  Did you mount all the needed folders with the -B option to bsub?" % input_file_path)
 
-        # Set the umask so group members can delete stuff
-        # The umask is u=rwx, g=rx, u=rx, for some reason...
-        # (The bsub?  The singularity container?)  Dunno...
-        # Anyway, we change it so that the final .h5 file is group-writable,
-        # but others have no access
-        os.umask(0o007)
+    # Set the umask so group members can delete stuff
+    # The umask is u=rwx, g=rx, u=rx, for some reason...
+    # (The bsub?  The singularity container?)  Dunno...
+    # Anyway, we change it so that the final .h5 file is group-writable,
+    # but others have no access
+    os.umask(0o007)
 
-        # Run the DLC eval script in a subprocess
-        this_script_path = os.path.realpath(__file__)
-        this_script_folder_path = os.path.dirname(this_script_path)
-        dlc_eval_script_path = os.path.join(this_script_folder_path, 'delectable', 'apply_model.py')
-        return_code = subprocess.call(['/usr/bin/python3', dlc_eval_script_path, network_folder_path, input_file_path, output_file_path])
-        if return_code != 0 :
-            raise RuntimeError('Calling the delectable apply_model.py script failed!')
+    # Run the DLC eval script in a subprocess
+    this_script_path = os.path.realpath(__file__)
+    this_script_folder_path = os.path.dirname(this_script_path)
+    dlc_eval_script_path = os.path.join(this_script_folder_path, 'delectable', 'apply_model.py')
+    return_code = subprocess.call(['/usr/bin/python3', dlc_eval_script_path, network_folder_path, input_file_path, output_file_path])
+    if return_code != 0 :
+        # Leave the lock file in place, so the service doesn't keep trying to run this file again and again
+        raise RuntimeError('Calling the delectable apply_model.py script failed!')
 
-        # If the job index is right, make a labeled video
-        labeled_video_period = 100  # make a labeled video every this many videos
-        if job_index % labeled_video_period == 0:
-            make_labeled_video_script_path = os.path.join(this_script_folder_path, 'delectable', 'make_labeled_video.py')
-            tracked_video_file_path = dlct.replace_extension(output_file_path, '.mp4')
-            return_code = subprocess.call(['/usr/bin/python3', 
-                                           make_labeled_video_script_path, 
-                                           network_folder_path, 
-                                           input_file_path, 
-                                           output_file_path, 
-                                           tracked_video_file_path])
-            if return_code != 0 :                
-                print('Calling the delectable make_labeled_video.py script failed!')  # Don't error out for this
+    # If the job index is right, make a labeled video
+    labeled_video_period = 100  # make a labeled video every this many videos
+    if job_index % labeled_video_period == 0:
+        make_labeled_video_script_path = os.path.join(this_script_folder_path, 'delectable', 'make_labeled_video.py')
+        tracked_video_file_path = dlct.replace_extension(output_file_path, '.mp4')
+        return_code = subprocess.call(['/usr/bin/python3', 
+                                       make_labeled_video_script_path, 
+                                       network_folder_path, 
+                                       input_file_path, 
+                                       output_file_path, 
+                                       tracked_video_file_path])
+        if return_code != 0 :                
+            print('Calling the delectable make_labeled_video.py script failed!')  # Don't error out for this
 
-        # Remove the lock file
-        if os.path.exists(lock_file_path) :
-            os.remove(lock_file_path)
+    # Since everything seems to have gone smoothly, remove the lock file
+    if os.path.exists(lock_file_path) :
+        os.remove(lock_file_path)
 
-        # Remove the input movie video, if we have adequate permissions
-        # But just keep on going if we don't
-        delete_input_file_and_empty_ancestral_folders(input_file_path, network_folder_path)                                           
-
-    except Exception as e:
-        # Try to clean up some before re-throwing
-
-        # Remove the lock file
-        #print("Exception caught, about to delete lock file at %s" % lock_file_path)
-        if os.path.exists(lock_file_path) :
-            #print("Lock file exists, about to delete lock file at %s" % lock_file_path) 
-            os.remove(lock_file_path)
- 
-        # Re-throw the exception
-        raise e
+    # Remove the input movie video, if we have adequate permissions
+    # But just keep on going if we don't
+    delete_input_file_and_empty_ancestral_folders(input_file_path, network_folder_path)                                           
 # end of function
 
 

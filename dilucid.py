@@ -88,12 +88,12 @@ def process_files_in_one_folder(dilucid_code_folder_path, mount_folder_path, sou
                     has_been_run_on_one_file = True            
                     #subprocess.call('/usr/bin/touch "%s"' % lock_file_path, shell=True)
                     pathlib.Path(lock_file_path).touch()
-                    stdout_file_path = os.path.join(output_folder_path, replace_extension(source_file_name, '-stdout.txt'))
-                    stderr_file_path = os.path.join(output_folder_path, replace_extension(source_file_name, '-stderr.txt'))
+                    stdout_file_path = os.path.join(output_folder_path, replace_extension(source_file_name, '-out.txt'))
+                    #stderr_file_path = os.path.join(output_folder_path, replace_extension(source_file_name, '-stderr.txt'))
                     delectable_path = os.path.join(dilucid_code_folder_path, 'delectable') 
                     singularity_image_path = os.path.join(delectable_path, 'dlc.simg')
                     print("stdout_file_path: %s" % stdout_file_path)
-                    print("stderr_file_path: %s" % stderr_file_path)
+                    #print("stderr_file_path: %s" % stderr_file_path)
                     print("mount_folder_path: %s" % mount_folder_path)
                     print("source_file_path: %s" % source_file_path)
                     print("lock_file_path: %s"   % lock_file_path)
@@ -103,8 +103,8 @@ def process_files_in_one_folder(dilucid_code_folder_path, mount_folder_path, sou
                     #                 % (stdout_file_path, stderr_file_path, mount_folder_path, source_file_path, network_folder_path, lock_file_path, target_file_path) )
                     job_id = n_submitted   # will start from zero
                     command_line_as_list = [ 'bsub', 
-                                             '-o', stdout_file_path, 
-                                             '-e', stderr_file_path, 
+                                             '-oo', stdout_file_path, 
+                                             '-eo', stdout_file_path, 
                                              '-q', 'gpu_any',
                                              '-n2', 
                                              '-gpu', 'num=1', 
