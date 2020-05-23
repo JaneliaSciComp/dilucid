@@ -109,7 +109,7 @@ def evaluate_on_one_video(input_file_path,
         raise RuntimeError('Calling the delectable apply_model.py script failed!')
 
     # If the job index is right, make a labeled video
-    labeled_video_period = 100  # make a labeled video every this many videos
+    labeled_video_period = 20  # make a labeled video every this many videos
     if job_index % labeled_video_period == 0:
         make_labeled_video_script_path = os.path.join(this_script_folder_path, 'delectable', 'make_labeled_video.py')
         tracked_video_file_path = dlct.replace_extension(output_file_path, '.mp4')
